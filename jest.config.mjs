@@ -1,9 +1,9 @@
 /** @type {import('jest').Config} */
 const baseProject = {
   testEnvironment: 'node',
-  extensionsToTreatAsEsm: ['.ts'],
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   transform: {
-    '^.+\\.ts$': [
+    '^.+\\.tsx?$': [
       'ts-jest',
       {
         useESM: true,
@@ -30,6 +30,21 @@ const config = {
       ...baseProject,
       displayName: 'connectors',
       testMatch: ['<rootDir>/packages/connectors/src/**/*.test.ts'],
+    },
+    {
+      ...baseProject,
+      displayName: 'web',
+      testEnvironment: 'jsdom',
+      testMatch: ['<rootDir>/apps/web/src/**/*.test.ts', '<rootDir>/apps/web/src/**/*.test.tsx'],
+      transform: {
+        '^.+\\.tsx?$': [
+          'ts-jest',
+          {
+            useESM: true,
+            tsconfig: '<rootDir>/apps/web/tsconfig.json',
+          },
+        ],
+      },
     },
   ],
 };

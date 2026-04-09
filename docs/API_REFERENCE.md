@@ -15,7 +15,7 @@ Referencia operativa de la API del proyecto, con enfoque de uso real en VPS.
 
 Variables relacionadas:
 
-- `SWAGGER_ENABLED=true|false`
+- `SWAGGER_ENABLED=true|false` (default: `true` en desarrollo, `false` en producción)
 - `SWAGGER_ROUTE_PREFIX=/docs`
 - `API_PUBLIC_URL=https://api.tu-dominio.com` (opcional, para `servers` en OpenAPI)
 
@@ -163,6 +163,7 @@ Variables clave recomendadas:
 - `DEMO_MODE=false`
 - `RETAILER_TIMEOUT_MS=8000` (ajustar según latencia real)
 - `LIVE_CACHE_MAX_AGE_MINUTES=360`
+- `LIVE_CACHE_MAX_ENTRIES=2000`
 - `CORS_ORIGIN=https://tu-frontend.com`
 - `SWAGGER_ENABLED=true` (en privado) o `false` (si no quieres exponer docs)
 

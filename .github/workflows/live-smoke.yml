@@ -1,0 +1,75 @@
+name: Live Smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
+
+jobs:
+  live-connectors-smoke:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 20
+    env:
+      NODE_ENV: production
+      PORT: 3001
+      HOST: 127.0.0.1
+      DEMO_MODE: false
+      MERCADONA_MODE: live
+      LIDL_MODE: live
+      DIA_MODE: live
+      AHORRAMAS_MODE: live
+      EROSKI_MODE: live
+      CARREFOUR_MODE: live
+      EL_CORTE_INGLES_MODE: live
+      SWAGGER_ENABLED: false
+      CORS_ORIGIN: false
+      RETAILER_TIMEOUT_MS: 6000
+      LIVE_CACHE_MAX_AGE_MINUTES: 120
+      LIVE_CACHE_MAX_ENTRIES: 1000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install
+        run: npm install
+
+      - name: Build packages and API
+        run: npm run build:packages && npm run build -w api
+
+      - name: Start API
+        run: |
+          node apps/api/dist/index.js > api.log 2>&1 &
+          echo $! > api.pid
+
+      - name: Wait for health
+        run: |
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:3001/v1/health > /dev/null; then
+              echo "API ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "API did not become ready in time"
+          cat api.log || true
+          exit 1
+
+      - name: Smoke compare live
+        run: |
+          curl -fsS -X POST http://127.0.0.1:3001/v1/compare \
+            -H "Content-Type: application/json" \
+            -d '{"lines":["leche entera 1 l","arroz redondo 1 kg"],"mode":"per_item"}' > smoke.json
+          node -e "const fs=require('node:fs'); const data=JSON.parse(fs.readFileSync('smoke.json','utf8')); if(!Array.isArray(data.items)||data.items.length!==2){console.error('Smoke compare inválido'); process.exit(1);} console.log('Smoke OK: compare respondió formato esperado');"
+
+      - name: Stop API
+        if: always()
+        run: |
+          if [ -f api.pid ]; then
+            kill "$(cat api.pid)" || true
+          fi
+          cat api.log || true

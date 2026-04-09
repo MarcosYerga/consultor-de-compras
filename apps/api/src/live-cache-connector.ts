@@ -69,12 +69,46 @@ class LiveSearchFileCache {
     await rename(tmp, this.filePath);
   }
 
-  async set(key: string, hits: SearchHit[]): Promise<void> {
+  private pruneExpired(maxAgeMs: number): void {
+    const now = Date.now();
+    for (const [key, entry] of this.entries.entries()) {
+      const updatedAtMs = Date.parse(entry.updated_at);
+      if (!Number.isFinite(updatedAtMs) || now - updatedAtMs > maxAgeMs) {
+        this.entries.delete(key);
+      }
+    }
+  }
+
+  private pruneToMaxEntries(maxEntries: number): void {
+    if (this.entries.size <= maxEntries) return;
+
+    const ordered = [...this.entries.entries()].sort((a, b) => {
+      const aMs = Date.parse(a[1].updated_at);
+      const bMs = Date.parse(b[1].updated_at);
+      const left = Number.isFinite(aMs) ? aMs : 0;
+      const right = Number.isFinite(bMs) ? bMs : 0;
+      return left - right;
+    });
+
+    const removeCount = this.entries.size - maxEntries;
+    for (let i = 0; i < removeCount; i += 1) {
+      const key = ordered[i]?.[0];
+      if (key) this.entries.delete(key);
+    }
+  }
+
+  async set(
+    key: string,
+    hits: SearchHit[],
+    retention: { maxAgeMs: number; maxEntries: number },
+  ): Promise<void> {
     await this.ensureLoaded();
+    this.pruneExpired(retention.maxAgeMs);
     this.entries.set(key, {
       updated_at: new Date().toISOString(),
       hits: stripSource(hits),
     });
+    this.pruneToMaxEntries(retention.maxEntries);
 
     this.writeQueue = this.writeQueue.catch(() => undefined).then(() => this.persist());
     await this.writeQueue;
@@ -110,6 +144,7 @@ function getSharedCache(filePath: string): LiveSearchFileCache {
 export type LiveCacheFallbackOptions = {
   cacheFilePath: string;
   maxAgeMs: number;
+  maxEntries?: number;
 };
 
 /**
@@ -123,6 +158,7 @@ export function createConnectorWithLiveCacheFallback(
   options: LiveCacheFallbackOptions,
 ): RetailerConnector {
   const cache = getSharedCache(options.cacheFilePath);
+  const maxEntries = options.maxEntries ?? 2000;
 
   return {
     id: live.id,
@@ -135,7 +171,10 @@ export function createConnectorWithLiveCacheFallback(
         if (liveHits.length > 0) {
           const annotatedLiveHits = annotateSource(liveHits, 'live');
           try {
-            await cache.set(cacheKey, annotatedLiveHits);
+            await cache.set(cacheKey, annotatedLiveHits, {
+              maxAgeMs: options.maxAgeMs,
+              maxEntries,
+            });
           } catch {
             // Un fallo de persistencia no debe romper la respuesta live.
           }

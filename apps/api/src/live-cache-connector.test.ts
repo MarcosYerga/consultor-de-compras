@@ -1,4 +1,4 @@
-import { mkdir, rm } from 'node:fs/promises';
+import { mkdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from '@jest/globals';
@@ -93,6 +93,40 @@ describe('createConnectorWithLiveCacheFallback', () => {
     });
 
     await expect(wrapped.search('producto raro xyz')).resolves.toEqual([]);
+
+    await rm(cachePath, { force: true });
+  });
+
+  it('acota el tamaño de cache y elimina entradas antiguas', async () => {
+    const live: RetailerConnector = {
+      id: 'lidl',
+      async search(query) {
+        return [makeHit(`hit-${query}`)];
+      },
+      async healthcheck() {
+        return { ok: true, latency_ms: 1 };
+      },
+    };
+
+    const cachePath = await makeTmpCacheFilePath('fallback-max-entries');
+    const wrapped = createConnectorWithLiveCacheFallback(live, {
+      cacheFilePath: cachePath,
+      maxAgeMs: 10 * 60 * 1000,
+      maxEntries: 2,
+    });
+
+    await wrapped.search('query a');
+    await wrapped.search('query b');
+    await wrapped.search('query c');
+
+    const raw = await readFile(cachePath, 'utf8');
+    const parsed = JSON.parse(raw) as { entries?: Record<string, unknown> };
+    const keys = Object.keys(parsed.entries ?? {});
+
+    expect(keys).toHaveLength(2);
+    expect(keys.some((k) => k.includes('query a'))).toBe(false);
+    expect(keys.some((k) => k.includes('query b'))).toBe(true);
+    expect(keys.some((k) => k.includes('query c'))).toBe(true);
 
     await rm(cachePath, { force: true });
   });

@@ -20,6 +20,7 @@ function withLiveCache(live: RetailerConnector) {
   return createConnectorWithLiveCacheFallback(live, {
     cacheFilePath: env.liveCacheFile,
     maxAgeMs: env.liveCacheMaxAgeMinutes * 60 * 1000,
+    maxEntries: env.liveCacheMaxEntries,
   });
 }
 

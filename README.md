@@ -66,6 +66,11 @@ Para despliegue en VPS, el backend usa estrategia **live-first con cache real po
 
 Esto mantiene la app usable sin falsear datos: `stale` sigue siendo dato real capturado previamente en live, no mock.
 
+Límites operativos recomendados en VPS:
+
+- `LIVE_CACHE_MAX_AGE_MINUTES` (TTL de frescura para reutilizar stale).
+- `LIVE_CACHE_MAX_ENTRIES` (tope de entradas persistidas para evitar crecimiento indefinido).
+
 ## Demo en vivo y capturas (portafolio)
 
 - **Despliegue:** cuando tengas una URL pública (Vercel, Fly.io, Railway, etc.), añádela aquí y en la descripción del repositorio en GitHub para que el primer vistazo sea en un clic.
@@ -129,10 +134,12 @@ Misma idea: búsqueda en supermercado y parseo de `__NEXT_DATA__`. **Akamai** pu
 ## API docs y prácticas profesionales
 
 - OpenAPI + Swagger UI integrado en la API (`/docs`, configurable con `SWAGGER_ROUTE_PREFIX`).
+- Defaults endurecidos por entorno: Swagger desactivado por defecto en `NODE_ENV=production`.
 - Hardening base de cabeceras HTTP con `@fastify/helmet`.
-- CORS configurable por entorno (`CORS_ORIGIN`).
+- CORS configurable por entorno (`CORS_ORIGIN`), con default seguro en producción.
 - Errores estandarizados con `request_id` para trazabilidad operativa.
 - Control de calidad en CI con `npm run check`.
+- Smoke live programado en CI (`workflow_dispatch` + `schedule`) para validar conectores reales.
 
 Referencia completa de endpoints, ejemplos y operación:
 [`docs/API_REFERENCE.md`](./docs/API_REFERENCE.md).

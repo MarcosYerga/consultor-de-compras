@@ -10,6 +10,12 @@ function positiveNumberFromEnv(value: string | undefined, fallback: number): num
   return parsed;
 }
 
+function positiveIntegerFromEnv(value: string | undefined, fallback: number): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.floor(parsed);
+}
+
 function booleanFromEnv(value: string | undefined, fallback: boolean): boolean {
   if (value == null) return fallback;
   const normalized = value.trim().toLowerCase();
@@ -24,8 +30,11 @@ function normalizeSwaggerRoutePrefix(value: string | undefined): string {
   return raw.startsWith('/') ? raw : `/${raw}`;
 }
 
-function corsOriginFromEnv(value: string | undefined): boolean | string | string[] {
-  if (value == null || value.trim() === '') return true;
+function corsOriginFromEnv(
+  value: string | undefined,
+  fallback: boolean | string | string[],
+): boolean | string | string[] {
+  if (value == null || value.trim() === '') return fallback;
   const normalized = value.trim().toLowerCase();
   if (normalized === 'false' || normalized === '0' || normalized === 'no') return false;
   if (normalized === 'true' || normalized === '1' || normalized === 'yes') return true;
@@ -35,17 +44,20 @@ function corsOriginFromEnv(value: string | undefined): boolean | string | string
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0);
 
-  if (origins.length === 0) return true;
+  if (origins.length === 0) return fallback;
   if (origins.length === 1) return origins[0]!;
   return origins;
 }
 
 export function readEnv() {
+  const nodeEnv = process.env.NODE_ENV ?? 'development';
+  const isProduction = nodeEnv === 'production';
+
   return {
     port: Number(process.env.PORT ?? 3001),
     host: process.env.HOST ?? '0.0.0.0',
     demoMode: process.env.DEMO_MODE === 'true',
-    nodeEnv: process.env.NODE_ENV ?? 'development',
+    nodeEnv,
     /** `live`: API JSON tienda.mercadona.es (v1_1). `mock`: datos simulados. */
     mercadonaMode: process.env.MERCADONA_MODE === 'live' ? ('live' as const) : ('mock' as const),
     mercadonaWarehouse: process.env.MERCADONA_WAREHOUSE ?? 'vlc1',
@@ -66,15 +78,17 @@ export function readEnv() {
     liveCacheFile: process.env.LIVE_CACHE_FILE ?? defaultLiveCacheFile,
     /** Ventana de frescura del cache live antes de considerarlo caducado. */
     liveCacheMaxAgeMinutes: positiveNumberFromEnv(process.env.LIVE_CACHE_MAX_AGE_MINUTES, 360),
+    /** Número máximo de entradas persistidas en cache live/stale. */
+    liveCacheMaxEntries: positiveIntegerFromEnv(process.env.LIVE_CACHE_MAX_ENTRIES, 2000),
     /** Timeout por retailer en comparación de líneas. */
     retailerTimeoutMs: positiveNumberFromEnv(process.env.RETAILER_TIMEOUT_MS, 8000),
-    /** Activación de OpenAPI/Swagger UI. */
-    swaggerEnabled: booleanFromEnv(process.env.SWAGGER_ENABLED, true),
+    /** Activación de OpenAPI/Swagger UI (por defecto off en producción). */
+    swaggerEnabled: booleanFromEnv(process.env.SWAGGER_ENABLED, !isProduction),
     /** Ruta donde se expone Swagger UI. */
     swaggerRoutePrefix: normalizeSwaggerRoutePrefix(process.env.SWAGGER_ROUTE_PREFIX),
     /** URL pública de la API para la sección servers de OpenAPI (opcional). */
     apiPublicUrl: process.env.API_PUBLIC_URL,
-    /** CORS: `true` (default), `false` o lista CSV de orígenes permitidos. */
-    corsOrigin: corsOriginFromEnv(process.env.CORS_ORIGIN),
+    /** CORS: en prod default `false`; en no-prod default `true`; o lista CSV explícita. */
+    corsOrigin: corsOriginFromEnv(process.env.CORS_ORIGIN, isProduction ? false : true),
   };
 }
