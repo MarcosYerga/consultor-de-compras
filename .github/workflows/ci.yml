@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      MERCADONA_MODE: mock
+      LIDL_MODE: mock
+      DIA_MODE: mock
+      AHORRAMAS_MODE: mock
+      EROSKI_MODE: mock
+      CARREFOUR_MODE: mock
+      EL_CORTE_INGLES_MODE: mock
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install
+        run: npm install
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Test
+        run: npm run build:packages && npm test
+
+      - name: Build packages and apps
+        run: npm run build

@@ -1,0 +1,36 @@
+{
+  "type": "search",
+  "version": "v2.0.0",
+  "items": [
+    {
+      "type": "product",
+      "resultClass": "product",
+      "code": "100000001",
+      "gridbox": {
+        "data": {
+          "fullTitle": "Milbona Leche entera 1 l",
+          "canonicalUrl": "/p/milbona-leche-entera-1-l/p100000001",
+          "price": {
+            "currencyCode": "EUR",
+            "price": 0.89
+          }
+        }
+      }
+    },
+    {
+      "type": "product",
+      "resultClass": "product",
+      "gridbox": {
+        "data": {
+          "keyfacts": {
+            "title": "Aceite de oliva virgen extra 1 l"
+          },
+          "canonicalPath": "/p/aceite-oliva-1l/p100000002",
+          "price": {
+            "price": 4.99
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "consultor-de-compras",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run build:packages && concurrently -n api,web -c blue,green \"npm run dev -w api\" \"npm run dev -w web\"",
+    "build:packages": "npm run build -w @consultor/api-types && npm run build -w @consultor/connectors",
+    "build": "npm run build -w @consultor/api-types && npm run build -w @consultor/connectors && npm run build -w api && npm run build -w web",
+    "test": "npm run test --workspaces --if-present",
+    "check": "npm run lint && npm run build:packages && npm run test && npm run build",
+    "lint": "eslint packages apps",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.19.0"
+  }
+}

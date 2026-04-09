@@ -49,11 +49,11 @@ Lista de trabajo para v1 (orden alfabético; ajustar slugs técnicos en código)
 
 | # | Cadena | Nota |
 |---|--------|------|
-| 1 | **Aldi** | |
-| 2 | **Ahorramas** | Cobertura regional; conector acotado a su web si aplica. |
-| 3 | **Carrefour** | |
-| 4 | **Dia** | |
-| 5 | **El Corte Inglés** | |
+| 1 | **Ahorramas** | Cobertura regional; conector acotado a su web si aplica. |
+| 2 | **Carrefour** | |
+| 3 | **Dia** | |
+| 4 | **El Corte Inglés** | |
+| 5 | **Eroski** | Supermercado online (HTML de resultados). |
 | 6 | **Lidl** | |
 | 7 | **Mercadona** | |
 
