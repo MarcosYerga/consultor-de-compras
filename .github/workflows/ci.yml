@@ -28,11 +28,5 @@ jobs:
       - name: Install
         run: npm install
 
-      - name: Lint
-        run: npm run lint --if-present
-
-      - name: Test
-        run: npm run build:packages && npm test
-
-      - name: Build packages and apps
-        run: npm run build
+      - name: Quality Gate
+        run: npm run check

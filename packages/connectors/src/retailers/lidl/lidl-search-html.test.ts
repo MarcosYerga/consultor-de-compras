@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { parseLidlSearchHtmlToHits } from './lidl-search-html.js';
 
 const SAMPLE = `...&quot;canonicalUrl&quot;:&quot;/p/test-leche/p1001&quot;,&quot;category&quot;:&quot;Lácteos&quot;,&quot;fullTitle&quot;:&quot;Leche entera 1 l&quot;,&quot;havingPrice&quot;:true,&quot;price&quot;:{&quot;currencyCode&quot;:&quot;EUR&quot;,&quot;packaging&quot;:{},&quot;price&quot;:0.89,&quot;showEndDate&quot;:false,&quot;specialTaxes&quot;:[]...`;

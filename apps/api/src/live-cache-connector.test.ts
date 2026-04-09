@@ -1,7 +1,7 @@
 import { mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import type { RetailerConnector } from '@consultor/connectors';
 import { createConnectorWithLiveCacheFallback } from './live-cache-connector.js';
 

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { parseQuantityFromProductText } from './parse-product-quantity.js';
 
 describe('parseQuantityFromProductText', () => {

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { parseEroskiSearchHtml } from './eroski-parse-search.js';
 
 const SNIPPET = `<a href="https://supermercado.eroski.es:443/es/productdetail/18672295-leche-test/" class="product-title-link" data-metrics="{&quot;event&quot;:&quot;select_item&quot;,&quot;ecommerce&quot;:{&quot;currency&quot;:&quot;EUR&quot;,&quot;items&quot;:[{&quot;price&quot;:1.15,&quot;item_name&quot;:&quot;Leche entera EROSKI 1 l&quot;,&quot;item_id&quot;:&quot;18672295&quot;}]}}">X</a>`;

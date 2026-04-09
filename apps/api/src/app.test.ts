@@ -1,9 +1,28 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { createMockConnectorRegistry } from '@consultor/connectors';
 import type { RetailerId } from '@consultor/api-types';
 import { buildApp } from './app.js';
 
 describe('API v1', () => {
+  it('GET /docs/json expone OpenAPI cuando swagger está habilitado', async () => {
+    const registry = createMockConnectorRegistry();
+    const app = await buildApp({ getConnectorRegistry: () => registry }, { swaggerEnabled: true });
+    const res = await app.inject({ method: 'GET', url: '/docs/json' });
+    expect(res.statusCode).toBe(200);
+    const body = res.json() as { openapi?: string; info?: { title?: string } };
+    expect(body.openapi).toBeDefined();
+    expect(body.info?.title).toContain('Consultor de Compras API');
+    await app.close();
+  });
+
+  it('Swagger se puede desactivar por configuración', async () => {
+    const registry = createMockConnectorRegistry();
+    const app = await buildApp({ getConnectorRegistry: () => registry }, { swaggerEnabled: false });
+    const res = await app.inject({ method: 'GET', url: '/docs/json' });
+    expect(res.statusCode).toBe(404);
+    await app.close();
+  });
+
   it('GET /v1/health', async () => {
     const registry = createMockConnectorRegistry();
     const app = await buildApp({ getConnectorRegistry: () => registry });

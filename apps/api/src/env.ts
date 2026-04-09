@@ -10,6 +10,36 @@ function positiveNumberFromEnv(value: string | undefined, fallback: number): num
   return parsed;
 }
 
+function booleanFromEnv(value: string | undefined, fallback: boolean): boolean {
+  if (value == null) return fallback;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'true' || normalized === '1' || normalized === 'yes') return true;
+  if (normalized === 'false' || normalized === '0' || normalized === 'no') return false;
+  return fallback;
+}
+
+function normalizeSwaggerRoutePrefix(value: string | undefined): string {
+  const raw = (value ?? '/docs').trim();
+  if (raw === '') return '/docs';
+  return raw.startsWith('/') ? raw : `/${raw}`;
+}
+
+function corsOriginFromEnv(value: string | undefined): boolean | string | string[] {
+  if (value == null || value.trim() === '') return true;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'false' || normalized === '0' || normalized === 'no') return false;
+  if (normalized === 'true' || normalized === '1' || normalized === 'yes') return true;
+
+  const origins = value
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+
+  if (origins.length === 0) return true;
+  if (origins.length === 1) return origins[0]!;
+  return origins;
+}
+
 export function readEnv() {
   return {
     port: Number(process.env.PORT ?? 3001),
@@ -36,5 +66,15 @@ export function readEnv() {
     liveCacheFile: process.env.LIVE_CACHE_FILE ?? defaultLiveCacheFile,
     /** Ventana de frescura del cache live antes de considerarlo caducado. */
     liveCacheMaxAgeMinutes: positiveNumberFromEnv(process.env.LIVE_CACHE_MAX_AGE_MINUTES, 360),
+    /** Timeout por retailer en comparación de líneas. */
+    retailerTimeoutMs: positiveNumberFromEnv(process.env.RETAILER_TIMEOUT_MS, 8000),
+    /** Activación de OpenAPI/Swagger UI. */
+    swaggerEnabled: booleanFromEnv(process.env.SWAGGER_ENABLED, true),
+    /** Ruta donde se expone Swagger UI. */
+    swaggerRoutePrefix: normalizeSwaggerRoutePrefix(process.env.SWAGGER_ROUTE_PREFIX),
+    /** URL pública de la API para la sección servers de OpenAPI (opcional). */
+    apiPublicUrl: process.env.API_PUBLIC_URL,
+    /** CORS: `true` (default), `false` o lista CSV de orígenes permitidos. */
+    corsOrigin: corsOriginFromEnv(process.env.CORS_ORIGIN),
   };
 }

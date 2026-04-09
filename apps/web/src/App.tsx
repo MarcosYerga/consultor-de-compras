@@ -85,6 +85,7 @@ function RetailerCell({ row, id }: { row: ItemComparison; id: RetailerId }) {
 }
 
 export function App() {
+  const maxLines = 40;
   const [text, setText] = useState(readListDraft);
   const [demo, setDemo] = useState(readDemoFlag);
   const [compareMode, setCompareMode] = useState<CompareMode>(readCompareMode);
@@ -166,13 +167,21 @@ export function App() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={8}
+          placeholder="Ejemplo:
+leche entera 1 l
+aceite de oliva 1 l
+arroz redondo 1 kg"
           spellCheck={false}
         />
+        <div className="entry-meta muted small">
+          <span>{lines.length} líneas en la lista</span>
+          <span>Máximo {maxLines} por comparación</span>
+        </div>
         <p className="list-hint muted small">
           La lista se guarda solo en tu navegador (localStorage); no se envía al servidor hasta que
-          pulsas Comparar.           Si no indicas cantidad (gramos, litros, etc.), el mejor precio por ítem
-          usa €/kg o €/L cuando hay peso o cantidad en los datos (o en el nombre del
-          producto), no solo el precio del pack.
+          pulsas Comparar. Si no indicas cantidad (gramos, litros, etc.), el mejor precio por ítem
+          usa €/kg o €/L cuando hay peso o cantidad en los datos (o en el nombre del producto), no
+          solo el precio del pack.
         </p>
 
         <div className="mode-row" role="radiogroup" aria-label="Modo de comparación">
@@ -205,15 +214,15 @@ export function App() {
           <button
             type="button"
             className="button"
-            disabled={mutation.isPending || lines.length === 0 || lines.length > 40}
+            disabled={mutation.isPending || lines.length === 0 || lines.length > maxLines}
             onClick={() => mutation.mutate()}
           >
             {mutation.isPending ? 'Comparando…' : 'Comparar'}
           </button>
         </div>
 
-        {lines.length > 40 ? (
-          <p className="warn">Máximo 40 líneas por comparación (v1).</p>
+        {lines.length > maxLines ? (
+          <p className="warn">Máximo {maxLines} líneas por comparación (v1).</p>
         ) : null}
 
         {mutation.isError ? (

@@ -52,6 +52,14 @@ const registry = buildConnectorRegistry({
 
 const app = await buildApp({
   getConnectorRegistry: () => registry,
+}, {
+  demoMode: env.demoMode,
+  nodeEnv: env.nodeEnv,
+  retailerTimeoutMs: env.retailerTimeoutMs,
+  swaggerEnabled: env.swaggerEnabled,
+  swaggerRoutePrefix: env.swaggerRoutePrefix,
+  apiPublicUrl: env.apiPublicUrl,
+  corsOrigin: env.corsOrigin,
 });
 
 await app.listen({ port: env.port, host: env.host });

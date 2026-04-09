@@ -44,6 +44,7 @@ npm run dev
 
 - Front: [http://localhost:5173](http://localhost:5173) (proxy de `/v1` → API)
 - API: [http://localhost:3001](http://localhost:3001)
+- Swagger UI (OpenAPI): [http://localhost:3001/docs](http://localhost:3001/docs)
 
 Variables opcionales: copia `.env.example` a `.env` en `apps/api` si quieres ajustar puerto o los modos por cadena (incluidos `EROSKI_MODE`, `CARREFOUR_MODE`, `EL_CORTE_INGLES_MODE`).
 
@@ -121,9 +122,20 @@ Misma idea: búsqueda en supermercado y parseo de `__NEXT_DATA__`. **Akamai** pu
 | ---------------- | ---------------------------------------- |
 | `npm run dev`    | Compila paquetes y arranca API + web     |
 | `npm run build`  | Build de `api-types`, `connectors`, apps |
-| `npm test`       | Vitest en paquetes con tests             |
+| `npm test`       | Jest en paquetes con tests               |
 | `npm run lint`   | ESLint en workspaces                     |
 | `npm run format` | Prettier                                   |
+
+## API docs y prácticas profesionales
+
+- OpenAPI + Swagger UI integrado en la API (`/docs`, configurable con `SWAGGER_ROUTE_PREFIX`).
+- Hardening base de cabeceras HTTP con `@fastify/helmet`.
+- CORS configurable por entorno (`CORS_ORIGIN`).
+- Errores estandarizados con `request_id` para trazabilidad operativa.
+- Control de calidad en CI con `npm run check`.
+
+Referencia completa de endpoints, ejemplos y operación:
+[`docs/API_REFERENCE.md`](./docs/API_REFERENCE.md).
 
 ## Arquitectura (resumen)
 
@@ -154,6 +166,9 @@ Cada cadena implementa el mismo contrato (`search` + `healthcheck`); el motor de
 ## Documentación de producto
 
 La especificación funcional y de dominio vive en [`BIBLIA_IMPLEMENTACION_APP_COMPRAS.md`](./BIBLIA_IMPLEMENTACION_APP_COMPRAS.md).
+
+Convenciones de arquitectura por capas (SOLID/DRY y control de código no usado):
+[`docs/arquitectura-convenciones.md`](./docs/arquitectura-convenciones.md).
 
 ## Licencia
 

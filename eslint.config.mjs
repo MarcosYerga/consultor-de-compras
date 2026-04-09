@@ -10,7 +10,7 @@ export default tseslint.config(
       '**/node_modules/**',
       '**/*.md',
       '**/vite.config.ts',
-      '**/vitest.config.ts',
+      'jest.config.mjs',
       'eslint.config.mjs',
       'prettier.config.mjs',
     ],

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import type { SearchHit } from '@consultor/api-types';
 import {
   comparableEconomyScore,
